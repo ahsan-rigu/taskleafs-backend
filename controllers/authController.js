@@ -49,7 +49,30 @@ const signIn = async (req, res) => {
   }
 };
 
+const verify = async (req, res, next) => {
+  const { authorization } = req.headers;
+  if (!authorization) {
+    res.status(403).send({ message: "No authorisation" });
+  } else {
+    const token = authorization.split(" ")[1];
+    try {
+      jwt.verify(token, process.env.JWT_KEY, (error, { _id }) => {
+        if (error) {
+          res.status(500).send({ message: error.message });
+        }
+        req.userId = _id;
+        next();
+      });
+    } catch (error) {
+      res.status(500).send({
+        message: error.message,
+      });
+    }
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
+  verify,
 };
