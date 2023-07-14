@@ -5,11 +5,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   email: {
     type: String,
     required: false,
@@ -22,8 +17,6 @@ const UserSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
-    default:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSa0W4cTMxl3c4u738PdwJvW2xpbVnlvCZcTm-WiqHURQ&s",
   },
 });
 
