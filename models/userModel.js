@@ -17,6 +17,11 @@ const UserSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
+    default: "https://stock.adobe.com/search/images?k=unknown+user",
+  },
+  perosonalWorkplace: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Workplace",
   },
 });
 

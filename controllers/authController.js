@@ -13,11 +13,14 @@ const signUp = async (req, res) => {
       name,
       username,
       password: hashedPassword,
-      profilePicture,
     });
     res.status(201).send({ message: "Signed Up" });
   } catch (error) {
-    res.status(500).send({ message: error.message });
+    if (error.code === 11000) {
+      res.status(409).send({ message: "Username already exists" });
+    } else {
+      res.status(500).send({ message: error.message });
+    }
   }
 };
 
@@ -26,11 +29,15 @@ const signIn = async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(401).send({ message: "User Not Found" });
+      return res
+        .status(401)
+        .send({ message: "Username and Password don't match" });
     }
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      return res.status(401).send({ message: "User Not Found" });
+      return res
+        .status(401)
+        .send({ message: "Username and Password don't match" });
     }
     jwt.sign(
       { _id: user._id },
