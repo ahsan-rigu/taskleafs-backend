@@ -7,8 +7,8 @@ const UserSchema = new mongoose.Schema({
   },
   username: {
     type: String,
-    required: false,
     unique: true,
+    required: false,
   },
   password: {
     type: String,

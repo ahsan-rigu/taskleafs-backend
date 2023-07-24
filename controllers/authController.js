@@ -3,17 +3,32 @@ const dotenv = require("dotenv");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/userModel");
+const Workplace = require("../models/workplaceModel");
+const Branch = require("../models/branchModel");
 
 //req.body = {name, email, password, profilePicture}
 const signUp = async (req, res) => {
   try {
-    const { name, username, password, profilePicture } = req.body;
+    const { name, username, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-    await User.create({
+    const { _id: userId } = await User.create({
       name,
       username,
       password: hashedPassword,
     });
+    const { _id: perosonalWorkplaceId } = await Workplace.create({
+      workplaceName: "Personal",
+      description: "For all your personal tasks.",
+      owner: userId,
+    });
+    await Branch.create({
+      workplace: perosonalWorkplaceId,
+      branchName: "Your First Branch",
+    });
+    await User.updateOne(
+      { _id: userId },
+      { perosonalWorkplace: perosonalWorkplaceId }
+    );
     res.status(201).send({ message: "Signed Up" });
   } catch (error) {
     if (error.code === 11000) {
