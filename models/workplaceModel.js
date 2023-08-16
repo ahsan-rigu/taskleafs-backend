@@ -8,7 +8,7 @@ const workplaceSchema = new mongoose.Schema({
     required: true,
   },
   description: { type: String },
-  branches: [String],
+  branches: [{ type: mongoose.Schema.Types.ObjectId, ref: "Branch" }],
 });
 
 const Workplace = mongoose.model("Workplace", workplaceSchema);

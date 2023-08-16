@@ -23,12 +23,4 @@ app.use("*", (req, res) => {
   res.send("Route Not Found");
 });
 
-const myPromise = new Promise((res, rej) => {
-  setTimeout(() => res("Asdasdasd"), 0);
-});
-
-console.log(myPromise);
-
-console.log("hgere");
-
 connectDB();
