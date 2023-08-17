@@ -35,3 +35,37 @@ const deleteLeaf = async (req, res) => {
     });
   }
 };
+
+const addTask = async (req, res) => {
+  try {
+    const { leafId, task, order } = req.body;
+    await Leaf.findOneAndUpdate(
+      { _id: leafId },
+      { $push: { tasks: { task, isDone: false, order } } }
+    );
+    return res.status(200).send({
+      message: "Task Added",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+const deleteTask = async (req, res) => {
+  try {
+    const { leafId, taskId } = req.body;
+    await Leaf.findOneAndUpdate(
+      { _id: leafId },
+      { $pull: { tasks: { _id: taskId } } }
+    );
+    return res.status(200).send({
+      message: "Task Deleted",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
