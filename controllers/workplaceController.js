@@ -15,6 +15,46 @@ const createWorkplace = async (req, res) => {
   } catch (error) {}
 };
 
+const deleteWorkplace = async (req, res) => {
+  try {
+    const { workplaceId } = req.body;
+    await Workplace.findOneAndDelete({
+      _id: workplaceId,
+      owner: req.userId,
+    });
+    return res.status(200).send({
+      message: "Workplace Deleted",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+const createBranch = async (req, res) => {
+  try {
+    const { branchName, description, workplaceId } = req.body;
+    const { _id: branchId } = await Branch.create({
+      branchName,
+      description,
+      workplaceId,
+      leaves: [],
+    });
+    await Workplace.findOneAndUpdate(
+      { _id: workplaceId, owner: req.userId },
+      { $push: { branches: branchId } }
+    );
+    return res.status(200).send({
+      message: "Branch Created",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
 const addMember = async (req, res) => {
   try {
     const { userId, workplaceId } = req.body;
@@ -50,6 +90,8 @@ const deleteMember = async (req, res) => {
 };
 
 module.exports = {
+  createWorkplace,
+  deleteWorkplace,
   addMember,
   deleteMember,
 };
