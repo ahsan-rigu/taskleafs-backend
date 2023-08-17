@@ -38,36 +38,19 @@ const deleteWorkplace = async (req, res) => {
 
 const inviteUser = async (req, res) => {
   try {
-    const { username, workplaceId } = req.body;
+    const { username, workplaceId, userId } = req.body;
+    const { owner } = await Workplace.find({ _id: workplaceId });
+    if (owner !== req.userId) {
+      return res.status(401).send({
+        message: "You are not the owner of this workplace",
+      });
+    }
     User.findOneAndUpdate({
       username: username,
       invitations: { $ne: workplaceId },
     });
     return res.status(200).send({
       message: "User Invited",
-    });
-  } catch (error) {
-    return res.status(500).send({
-      message: error.message,
-    });
-  }
-};
-
-const createBranch = async (req, res) => {
-  try {
-    const { branchName, description, workplaceId } = req.body;
-    const { _id: branchId } = await Branch.create({
-      branchName,
-      description,
-      workplaceId,
-      leaves: [],
-    });
-    await Workplace.findOneAndUpdate(
-      { _id: workplaceId, owner: req.userId },
-      { $push: { branches: branchId } }
-    );
-    return res.status(200).send({
-      message: "Branch Created",
     });
   } catch (error) {
     return res.status(500).send({
@@ -102,6 +85,29 @@ const deleteMember = async (req, res) => {
     );
     return res.status(200).send({
       message: "Member Removed",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+const createBranch = async (req, res) => {
+  try {
+    const { branchName, description, workplaceId } = req.body;
+    const { _id: branchId } = await Branch.create({
+      branchName,
+      description,
+      workplaceId,
+      leaves: [],
+    });
+    await Workplace.findOneAndUpdate(
+      { _id: workplaceId, owner: req.userId },
+      { $push: { branches: branchId } }
+    );
+    return res.status(200).send({
+      message: "Branch Created",
     });
   } catch (error) {
     return res.status(500).send({
