@@ -106,6 +106,26 @@ const deleteMember = async (req, res) => {
   }
 };
 
+const changeOwner = async (req, res) => {
+  try {
+    const { userId, workplaceId, newOwner } = req.body;
+    const { owner } = await Workplace.findOne({ _id: workplaceId });
+    if (owner !== userId) {
+      return res.status(401).send({
+        message: "You are not authorized to change the owner",
+      });
+    }
+    await Workplace.findOneAndUpdate({ _id: workplaceId }, { owner: newOwner });
+    return res.status(200).send({
+      message: "Owner Changed",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createWorkplace,
   deleteWorkplace,

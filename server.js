@@ -21,6 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/user", userRoutes);
 app.use("/api/workplace", workplaceRoutes);
+app.use("/api/branch", branchRoutes);
+app.use("/api/leaf", leafRoutes);
 
 app.use("*", (req, res) => {
   console.log("someone is trying to access a non existing route", req.params);
