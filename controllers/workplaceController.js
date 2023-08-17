@@ -78,14 +78,27 @@ const addMember = async (req, res) => {
 
 const deleteMember = async (req, res) => {
   try {
-    const { userId, workplaceId } = req.body;
-    await Workplace.findOneAndUpdate(
-      { _id: workplaceId, owner: req.userId },
-      { $pull: { members: userId } }
-    );
-    return res.status(200).send({
-      message: "Member Removed",
-    });
+    const { userId, workplaceId, removeUserId } = req.body;
+    const { owner } = await Workplace.findOne({ _id: workplaceId });
+    if (owner === removeUserId) {
+      return res.status(401).send({
+        message:
+          "Owner cannot be removed from workplace, Delete Workplace instead",
+      });
+    }
+    if (userId === removeUserId || userId === owner) {
+      await Workplace.findOneAndUpdate(
+        { _id: workplaceId },
+        { $pull: { members: userId } }
+      );
+      return res.status(200).send({
+        message: "Member Removed",
+      });
+    } else {
+      return res.status(401).send({
+        message: "You are not authorized to remove this member",
+      });
+    }
   } catch (error) {
     return res.status(500).send({
       message: error.message,
