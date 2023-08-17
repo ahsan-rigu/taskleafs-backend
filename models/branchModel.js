@@ -5,7 +5,7 @@ const branchSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  leafs: [String],
+  leafs: [{ type: mongoose.Schema.Types.ObjectId, ref: "Leaf" }],
 });
 
 const Branch = mongoose.model("Branch", branchSchema);
