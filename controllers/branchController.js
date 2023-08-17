@@ -24,6 +24,24 @@ const createBranch = async (req, res) => {
   }
 };
 
+const deleteBranch = async (req, res) => {
+  try {
+    const { branchId } = req.body;
+    await Branch.findOneAndDelete({
+      _id: branchId,
+      owner: req.userId,
+    });
+    return res.status(200).send({
+      message: "Branch Deleted",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
+  deleteBranch,
   createBranch,
 };

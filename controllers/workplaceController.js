@@ -132,4 +132,5 @@ module.exports = {
   inviteUser,
   addMember,
   deleteMember,
+  changeOwner,
 };
