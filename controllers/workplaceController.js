@@ -4,7 +4,7 @@ const Branch = require("../models/branchModel");
 
 const createWorkplace = async (req, res) => {
   try {
-    const { workplaceName, description, branches } = req.body;
+    const { workplaceName, description } = req.body;
     const userId = req.userId;
     const { _id: workplaceId } = await Workplace.create({
       workplaceName,
@@ -12,7 +12,11 @@ const createWorkplace = async (req, res) => {
       owner: userId,
       branches: [],
     });
-  } catch (error) {}
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
 };
 
 const deleteWorkplace = async (req, res) => {
@@ -24,6 +28,23 @@ const deleteWorkplace = async (req, res) => {
     });
     return res.status(200).send({
       message: "Workplace Deleted",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+const inviteUser = async (req, res) => {
+  try {
+    const { username, workplaceId } = req.body;
+    User.findOneAndUpdate({
+      username: username,
+      invitations: { $ne: workplaceId },
+    });
+    return res.status(200).send({
+      message: "User Invited",
     });
   } catch (error) {
     return res.status(500).send({

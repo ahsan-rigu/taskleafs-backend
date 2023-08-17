@@ -23,6 +23,18 @@ const UserSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Workplace",
   },
+  workplaces: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workplace",
+    },
+  ],
+  invitations: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workplace",
+    },
+  ],
 });
 
 const User = mongoose.model("User", UserSchema);
