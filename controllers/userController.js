@@ -3,7 +3,6 @@ const Workplace = require("../models/workplaceModel");
 
 const getUser = async (req, res) => {
   try {
-    console.log("asdsad");
     const { userId } = req;
     const user = await User.findOne({ _id: userId }).populate({
       path: "workplaces",
@@ -13,6 +12,7 @@ const getUser = async (req, res) => {
       },
     });
     user.password = undefined;
+    console.log(user.workplaces);
     return res.status(200).send({
       message: "User Found",
       user,

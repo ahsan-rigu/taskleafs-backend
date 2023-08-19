@@ -3,17 +3,27 @@ const Workplace = require("../models/workplaceModel");
 const Branch = require("../models/branchModel");
 
 const createWorkplace = async (req, res) => {
+  console.log("reached");
   try {
-    const { workplaceName, description } = req.body;
+    const { name, description } = req.body;
     const userId = req.userId;
-    const { _id: workplaceId } = await Workplace.create({
-      workplaceName,
+    const workplace = await Workplace.create({
+      name,
       description,
       owner: userId,
       members: [userId],
       branches: [],
     });
+    await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { workplaces: workplace._id } }
+    );
+    return res.status(201).send({
+      message: "Workplace Created",
+      workplace,
+    });
   } catch (error) {
+    console.log(error);
     return res.status(500).send({
       message: error.message,
     });

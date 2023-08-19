@@ -36,7 +36,6 @@ const signUp = async (req, res) => {
       leafs: [leafId],
     });
     const { _id: perosonalWorkplaceId } = await Workplace.create({
-      workplaceName: "Personal",
       name: "Your First Workplace",
       description: "For you to get startes with",
       branches: [personalBranchId],
