@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const Workplace = require("../models/workplaceModel");
 const Branch = require("../models/branchModel");
+const Leaf = require("../models/leafModel");
 
 //req.body = {name, email, password, profilePicture}
 const signUp = async (req, res) => {
@@ -16,20 +17,36 @@ const signUp = async (req, res) => {
       username,
       password: hashedPassword,
     });
+    const { _id: leafId } = await Leaf.create({
+      leafName: "Your First Leaf",
+      description: "This is your first leaf. You can add tasks to it.",
+      tasks: [
+        { task: "Create a new task", isDone: false, order: 1 },
+        { task: "Mark a task as done", isDone: false, order: 2 },
+        { task: "Delete a task", isDone: false, order: 3 },
+        { task: "Edit a task", isDone: false, order: 4 },
+        { task: "Add a new leaf", isDone: false, order: 5 },
+        { task: "Add a new branch", isDone: false, order: 6 },
+        { task: "Create a new workplace", isDone: false, order: 7 },
+        { task: "Invite a Member", isDone: false, order: 8 },
+      ],
+    });
+    const { _id: personalBranchId } = await Branch.create({
+      branchName: "Your First Branch",
+      leafs: [leafId],
+    });
     const { _id: perosonalWorkplaceId } = await Workplace.create({
       workplaceName: "Personal",
-      description: "For all your personal tasks.",
+      name: "Your First Workplace",
+      description: "For you to get startes with",
+      branches: [personalBranchId],
       owner: userId,
     });
-    await Branch.create({
-      workplace: perosonalWorkplaceId,
-      branchName: "Your First Branch",
-    });
-    await User.updateOne(
+    await User.findOneAndUpdate(
       { _id: userId },
-      { perosonalWorkplace: perosonalWorkplaceId }
+      { $push: { workplaces: perosonalWorkplaceId } }
     );
-    res.status(201).send({ message: "Signed Up" });
+    return res.status(201).send({ message: "Signed Up" });
   } catch (error) {
     if (error.code === 11000) {
       res.status(409).send({ message: "Username already exists" });
