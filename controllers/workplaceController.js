@@ -10,6 +10,7 @@ const createWorkplace = async (req, res) => {
       workplaceName,
       description,
       owner: userId,
+      members: [userId],
       branches: [],
     });
   } catch (error) {
