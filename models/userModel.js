@@ -19,10 +19,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: "https://stock.adobe.com/search/images?k=unknown+user",
   },
-  perosonalWorkplace: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Workplace",
-  },
   workplaces: [
     {
       type: mongoose.Schema.Types.ObjectId,
