@@ -41,7 +41,25 @@ const deleteBranch = async (req, res) => {
   }
 };
 
+const updateBranch = async (req, res) => {
+  try {
+    const { branchId, branchName } = req.body;
+    await Branch.findOneAndUpdate(
+      { _id: branchId, owner: req.userId },
+      { branchName }
+    );
+    return res.status(200).send({
+      message: "Branch Updated",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
+  updateBranch,
   deleteBranch,
   createBranch,
 };
