@@ -36,6 +36,20 @@ const deleteLeaf = async (req, res) => {
   }
 };
 
+const updateLeaf = async (req, res) => {
+  try {
+    const { leafId, leafName } = req.body;
+    await Leaf.findOneAndUpdate({ _id: leafId }, { leafName });
+    return res.status(200).send({
+      message: "Leaf Updated",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
 const addTask = async (req, res) => {
   try {
     const { leafId, task, order } = req.body;
@@ -93,4 +107,5 @@ module.exports = {
   addTask,
   deleteTask,
   updateTask,
+  updateLeaf,
 };
