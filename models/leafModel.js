@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const leafSchema = new mongoose.Schema({
   leafName: { type: String },
   order: { type: Number },
-  tasks: [{ task: String, isDone: Boolean, order: Number }],
+  tasks: [{ task: String, order: Number, priority: String, createdBy: String }],
 });
 
 const Leaf = mongoose.model("Leaf", leafSchema);

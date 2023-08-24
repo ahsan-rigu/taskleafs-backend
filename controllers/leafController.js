@@ -52,10 +52,10 @@ const updateLeaf = async (req, res) => {
 
 const addTask = async (req, res) => {
   try {
-    const { leafId, task, order } = req.body;
+    const { leafId, task, order, createdBy, priority } = req.body;
     await Leaf.findOneAndUpdate(
       { _id: leafId },
-      { $push: { tasks: { task, isDone: false, order } } }
+      { $push: { tasks: { task, order, createdBy, priority } } }
     );
     return res.status(200).send({
       message: "Task Added",

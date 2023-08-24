@@ -21,14 +21,54 @@ const signUp = async (req, res) => {
       leafName: "Your First Leaf",
       description: "This is your first leaf. You can add tasks to it.",
       tasks: [
-        { task: "Create a new task", isDone: false, order: 1 },
-        { task: "Mark a task as done", isDone: false, order: 2 },
-        { task: "Delete a task", isDone: false, order: 3 },
-        { task: "Edit a task", isDone: false, order: 4 },
-        { task: "Add a new leaf", isDone: false, order: 5 },
-        { task: "Add a new branch", isDone: false, order: 6 },
-        { task: "Create a new workplace", isDone: false, order: 7 },
-        { task: "Invite a Member", isDone: false, order: 8 },
+        {
+          task: "Create a new task",
+          order: 1,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Mark a task as done",
+          order: 2,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Delete a task",
+          order: 3,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Edit a task",
+          order: 4,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Add a new leaf",
+          order: 5,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Add a new branch",
+          order: 6,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Create a new workplace",
+          order: 7,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "Invite a Member",
+          order: 8,
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
       ],
     });
     const { _id: personalBranchId } = await Branch.create({
