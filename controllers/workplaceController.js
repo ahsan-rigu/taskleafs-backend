@@ -1,17 +1,18 @@
 const User = require("../models/userModel");
 const Workplace = require("../models/workplaceModel");
 const Branch = require("../models/branchModel");
+const Leaf = require("../models/leafModel");
 
 const createWorkplace = async (req, res) => {
-  console.log("reached");
   try {
-    const { name, description } = req.body;
+    const { name: workplaceName, description } = req.body;
     const userId = req.userId;
+    const { name, username } = await User.findOne({ _id: userId });
     const workplace = await Workplace.create({
-      name,
+      name: workplaceName,
       description,
       owner: userId,
-      members: [userId],
+      members: [{ _id: userId, name: name, username: username }],
       branches: [],
     });
     await User.findOneAndUpdate(
@@ -30,13 +31,50 @@ const createWorkplace = async (req, res) => {
   }
 };
 
+const updateWorkplace = async (req, res) => {
+  try {
+    const { workplaceId, workplaceName, description } = req.body;
+    await Workplace.findOneAndUpdate(
+      { _id: workplaceId, owner: req.userId },
+      { name: workplaceName, description }
+    );
+    return res.status(200).send({
+      message: "Workplace Updated",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
 const deleteWorkplace = async (req, res) => {
   try {
-    const { workplaceId } = req.body;
-    await Workplace.findOneAndDelete({
+    const { workplaceId } = req.params;
+    const workplace = await Workplace.findOneAndDelete({
       _id: workplaceId,
       owner: req.userId,
     });
+    const branches = workplace.branches;
+    for (let i = 0; i < branches.length; i++) {
+      const branch = await Branch.findOneAndDelete({ _id: branches[i] });
+      const leafs = branch.leafs;
+      for (let j = 0; j < leafs.length; j++) {
+        await Leaf.findOneAndDelete({ _id: leafs[j] });
+      }
+    }
+    const user = await User.find();
+    for (let i = 0; i < user.length; i++) {
+      const workplaces = user[i].workplaces;
+      for (let j = 0; j < workplaces.length; j++) {
+        if (workplaces[j] === workplaceId) {
+          User.findOneAndUpdate(
+            { _id: user[i]._id },
+            { $pull: { workplaces: workplaceId } }
+          );
+        }
+      }
+    }
     return res.status(200).send({
       message: "Workplace Deleted",
     });
@@ -49,17 +87,26 @@ const deleteWorkplace = async (req, res) => {
 
 const inviteUser = async (req, res) => {
   try {
-    const { username, workplaceId, userId } = req.body;
-    const { owner } = await Workplace.find({ _id: workplaceId });
-    if (owner !== req.userId) {
+    const { username, workplaceId } = req.body;
+    const workplace = await Workplace.findOne({ _id: workplaceId });
+    if (workplace.owner.toString() !== req.userId) {
       return res.status(401).send({
         message: "You are not the owner of this workplace",
       });
     }
-    User.findOneAndUpdate({
-      username: username,
-      invitations: { $ne: workplaceId },
-    });
+    await User.findOneAndUpdate(
+      {
+        username: username,
+      },
+      {
+        $push: {
+          invitations: {
+            workplaceId: workplaceId,
+            name: workplace.name,
+          },
+        },
+      }
+    );
     return res.status(200).send({
       message: "User Invited",
     });
@@ -72,13 +119,55 @@ const inviteUser = async (req, res) => {
 
 const addMember = async (req, res) => {
   try {
-    const { userId, workplaceId } = req.body;
+    const { workplaceId, workplaceName } = req.body;
+    const { name, username } = await User.findOneAndUpdate(
+      { _id: req.userId },
+      {
+        $push: {
+          workplaces: workplaceId,
+        },
+        $pull: {
+          invitations: { workplaceId: workplaceId, name: workplaceName },
+        },
+      }
+    );
+    console.log(name, username);
     await Workplace.findOneAndUpdate(
-      { _id: workplaceId, owner: req.userId },
-      { $push: { members: userId } }
+      { _id: workplaceId },
+      {
+        $push: {
+          members: {
+            _id: req.userId,
+            name,
+            username,
+          },
+        },
+      }
     );
     return res.status(200).send({
       message: "Member Added",
+    });
+  } catch (error) {
+    return res.status(500).send({
+      message: error.message,
+    });
+  }
+};
+
+const deleteInvite = async (req, res) => {
+  try {
+    const { workplaceId, workplaceName } = req.body;
+    console.log(workplaceId, workplaceName);
+    await User.findOneAndUpdate(
+      { _id: req.userId },
+      {
+        $pull: {
+          invitations: { workplaceId: workplaceId, name: workplaceName },
+        },
+      }
+    );
+    return res.status(200).send({
+      message: "Invite Deleted",
     });
   } catch (error) {
     return res.status(500).send({
@@ -144,4 +233,6 @@ module.exports = {
   addMember,
   deleteMember,
   changeOwner,
+  updateWorkplace,
+  deleteInvite,
 };
