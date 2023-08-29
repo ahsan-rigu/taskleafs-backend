@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const leafSchema = new mongoose.Schema({
+  _id: String,
   leafName: { type: String },
-  order: { type: Number },
-  tasks: [{ task: String, priority: String, createdBy: String }],
+  tasks: [{ task: String, priority: String, createdBy: String, _id: String }],
 });
 
 const Leaf = mongoose.model("Leaf", leafSchema);
