@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
-const dotenv = require("dotenv");
+const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const { v4: uuid } = require("uuid");
 
 const User = require("../models/userModel");
 const Workplace = require("../models/workplaceModel");
@@ -18,68 +19,90 @@ const signUp = async (req, res) => {
       password: hashedPassword,
     });
     const { _id: leafId } = await Leaf.create({
+      _id: new mongoose.mongo.ObjectId(),
       leafName: "Your First Leaf",
       description: "This is your first leaf. You can add tasks to it.",
       tasks: [
         {
           task: "Create a new task",
-          order: 1,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Mark a task as done",
-          order: 2,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Delete a task",
-          order: 3,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Edit a task",
-          order: 4,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Add a new leaf",
-          order: 5,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Add a new branch",
-          order: 6,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Create a new workplace",
-          order: 7,
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
         {
           task: "Invite a Member",
-          order: 8,
+          _id: new mongoose.mongo.ObjectId(),
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+      ],
+    });
+    const { _id: leafId2 } = await Leaf.create({
+      _id: new mongoose.mongo.ObjectId(),
+      leafName: "Your First Leaf",
+      description: "This is your first leaf. You can add tasks to it.",
+      tasks: [
+        {
+          task: "asdasdasd",
+          _id: new mongoose.mongo.ObjectId(),
+          createdBy: "Task Leafs",
+          priority: "normal",
+        },
+        {
+          task: "asdasdsad",
+          _id: new mongoose.mongo.ObjectId(),
           createdBy: "Task Leafs",
           priority: "normal",
         },
       ],
     });
     const { _id: personalBranchId } = await Branch.create({
+      _id: new mongoose.mongo.ObjectId(),
       branchName: "Your First Branch",
-      leafs: [leafId],
+      leafs: [leafId, leafId2],
     });
     const { _id: perosonalWorkplaceId } = await Workplace.create({
       name: "Your First Workplace",
       description: "For you to get startes with",
       branches: [personalBranchId],
       owner: userId,
+      members: [{ _id: userId, name: name, username: username }],
     });
     await User.findOneAndUpdate(
       { _id: userId },
