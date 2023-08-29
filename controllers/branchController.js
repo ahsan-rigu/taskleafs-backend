@@ -3,21 +3,17 @@ const Workplace = require("../models/workplaceModel");
 
 const createBranch = async (req, res) => {
   try {
-    const { branchName, description, workplaceId } = req.body;
-    const { _id: branchId } = await Branch.create({
-      branchName,
-      description,
-      workplaceId,
-      leaves: [],
-    });
+    const { branch, workplaceId } = req.body;
+    await Branch.create(branch);
     await Workplace.findOneAndUpdate(
       { _id: workplaceId, owner: req.userId },
-      { $push: { branches: branchId } }
+      { $push: { branches: branch._id } }
     );
     return res.status(200).send({
       message: "Branch Created",
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).send({
       message: error.message,
     });
@@ -26,11 +22,19 @@ const createBranch = async (req, res) => {
 
 const deleteBranch = async (req, res) => {
   try {
-    const { branchId } = req.body;
-    await Branch.findOneAndDelete({
+    const { branchId, workplaceId } = req.params;
+    console.log(branchId, workplaceId);
+    const { leafs } = await Branch.findOneAndDelete({
       _id: branchId,
-      owner: req.userId,
     });
+    for (let j = 0; j < leafs.length; j++) {
+      await Leaf.findOneAndDelete({ _id: leafs[j] });
+    }
+
+    await Workplace.findOneAndUpdate(
+      { _id: workplaceId },
+      { $pull: { branches: branchId } }
+    );
     return res.status(200).send({
       message: "Branch Deleted",
     });
@@ -41,13 +45,10 @@ const deleteBranch = async (req, res) => {
   }
 };
 
-const updateBranch = async (req, res) => {
+const updateBranchName = async (req, res) => {
   try {
-    const { branchId, branchName } = req.body;
-    await Branch.findOneAndUpdate(
-      { _id: branchId, owner: req.userId },
-      { branchName }
-    );
+    const { branchName, branchId } = req.body;
+    await Branch.findOneAndUpdate({ _id: branchId }, { branchName });
     return res.status(200).send({
       message: "Branch Updated",
     });
@@ -59,7 +60,7 @@ const updateBranch = async (req, res) => {
 };
 
 module.exports = {
-  updateBranch,
+  updateBranchName,
   deleteBranch,
   createBranch,
 };
