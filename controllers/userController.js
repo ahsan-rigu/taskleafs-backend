@@ -1,6 +1,10 @@
 const User = require("../models/userModel");
 const Workplace = require("../models/workplaceModel");
 
+// User.watch().on("change", (change) => {
+//   console.log(change);
+// });
+
 const getUser = async (req, res) => {
   try {
     const { userId } = req;

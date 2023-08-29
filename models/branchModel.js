@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const branchSchema = new mongoose.Schema({
+  _id: String,
   branchName: {
     type: String,
     required: true,

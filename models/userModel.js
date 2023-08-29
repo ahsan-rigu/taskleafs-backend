@@ -27,8 +27,8 @@ const UserSchema = new mongoose.Schema({
   ],
   invitations: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Workplace",
+      workplaceId: mongoose.Schema.Types.ObjectId,
+      name: String,
     },
   ],
 });
