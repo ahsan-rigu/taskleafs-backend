@@ -8,7 +8,6 @@ const Workplace = require("../models/workplaceModel");
 const Branch = require("../models/branchModel");
 const Leaf = require("../models/leafModel");
 
-//req.body = {name, email, password, profilePicture}
 const signUp = async (req, res) => {
   try {
     const { name, username, password } = req.body;
@@ -21,7 +20,6 @@ const signUp = async (req, res) => {
     const { _id: leafId } = await Leaf.create({
       _id: new mongoose.mongo.ObjectId(),
       leafName: "Your First Leaf",
-      description: "This is your first leaf. You can add tasks to it.",
       tasks: [
         {
           task: "Create a new task",
@@ -30,64 +28,39 @@ const signUp = async (req, res) => {
           priority: "normal",
         },
         {
-          task: "Mark a task as done",
-          _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
-          priority: "normal",
-        },
-        {
           task: "Delete a task",
           _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
+          createdBy: name,
           priority: "normal",
         },
         {
           task: "Edit a task",
           _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
+          createdBy: name,
           priority: "normal",
         },
         {
           task: "Add a new leaf",
           _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
+          createdBy: name,
           priority: "normal",
         },
         {
           task: "Add a new branch",
           _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
+          createdBy: name,
           priority: "normal",
         },
         {
           task: "Create a new workplace",
           _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
+          createdBy: name,
           priority: "normal",
         },
         {
           task: "Invite a Member",
           _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
-          priority: "normal",
-        },
-      ],
-    });
-    const { _id: leafId2 } = await Leaf.create({
-      _id: new mongoose.mongo.ObjectId(),
-      leafName: "Your First Leaf",
-      description: "This is your first leaf. You can add tasks to it.",
-      tasks: [
-        {
-          task: "asdasdasd",
-          _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
-          priority: "normal",
-        },
-        {
-          task: "asdasdsad",
-          _id: new mongoose.mongo.ObjectId(),
-          createdBy: "Task Leafs",
+          createdBy: name,
           priority: "normal",
         },
       ],
@@ -95,11 +68,12 @@ const signUp = async (req, res) => {
     const { _id: personalBranchId } = await Branch.create({
       _id: new mongoose.mongo.ObjectId(),
       branchName: "Your First Branch",
-      leafs: [leafId, leafId2],
+      leafs: [leafId],
     });
     const { _id: perosonalWorkplaceId } = await Workplace.create({
       name: "Your First Workplace",
-      description: "For you to get startes with",
+      description:
+        "For you to get started with, explore the features, and reuse as you see fit",
       branches: [personalBranchId],
       owner: userId,
       members: [{ _id: userId, name: name, username: username }],
@@ -165,6 +139,7 @@ const verify = async (req, res, next) => {
         next();
       });
     } catch (error) {
+      console.log(error);
       res.status(500).send({
         message: error.message,
       });

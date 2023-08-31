@@ -24,7 +24,6 @@ const createWorkplace = async (req, res) => {
       workplace,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).send({
       message: error.message,
     });
@@ -131,7 +130,6 @@ const addMember = async (req, res) => {
         },
       }
     );
-    console.log(name, username);
     await Workplace.findOneAndUpdate(
       { _id: workplaceId },
       {
@@ -157,7 +155,6 @@ const addMember = async (req, res) => {
 const deleteInvite = async (req, res) => {
   try {
     const { workplaceId, workplaceName } = req.body;
-    console.log(workplaceId, workplaceName);
     await User.findOneAndUpdate(
       { _id: req.userId },
       {
@@ -178,18 +175,27 @@ const deleteInvite = async (req, res) => {
 
 const deleteMember = async (req, res) => {
   try {
-    const { userId, workplaceId, removeUserId } = req.body;
+    const { workplaceId, removeUserId } = req.params;
+    const { userId } = req;
     const { owner } = await Workplace.findOne({ _id: workplaceId });
-    if (owner === removeUserId) {
+    if (owner.toString() === removeUserId) {
       return res.status(401).send({
         message:
           "Owner cannot be removed from workplace, Delete Workplace instead",
       });
     }
-    if (userId === removeUserId || userId === owner) {
+    if (userId === removeUserId || userId === owner.toString()) {
+      const { name, username } = await User.findOneAndUpdate(
+        { _id: removeUserId },
+        {
+          $pull: {
+            workplaces: workplaceId,
+          },
+        }
+      );
       await Workplace.findOneAndUpdate(
         { _id: workplaceId },
-        { $pull: { members: userId } }
+        { $pull: { members: { _id: removeUserId, name, username } } }
       );
       return res.status(200).send({
         message: "Member Removed",

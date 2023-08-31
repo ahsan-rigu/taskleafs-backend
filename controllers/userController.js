@@ -1,9 +1,4 @@
 const User = require("../models/userModel");
-const Workplace = require("../models/workplaceModel");
-
-// User.watch().on("change", (change) => {
-//   console.log(change);
-// });
 
 const getUser = async (req, res) => {
   try {
@@ -16,13 +11,11 @@ const getUser = async (req, res) => {
       },
     });
     user.password = undefined;
-    console.log(user.workplaces);
     return res.status(200).send({
       message: "User Found",
       user,
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).send({
       message: error.message,
     });

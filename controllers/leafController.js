@@ -4,7 +4,6 @@ const Leaf = require("../models/leafModel");
 const createLeaf = async (req, res) => {
   try {
     const { branchId, leaf } = req.body;
-    console.log(branchId, leaf);
     const { _id: newLeafId } = await Leaf.create(leaf);
     await Branch.findOneAndUpdate(
       { _id: branchId },
@@ -12,7 +11,6 @@ const createLeaf = async (req, res) => {
     );
     return res.sendStatus(200);
   } catch (error) {
-    console.log(error);
     return res.status(500).send({
       message: error.message,
     });
@@ -98,7 +96,6 @@ const updateTask = async (req, res) => {
 };
 
 const moveTask = async (req, res) => {
-  console.log("reached");
   try {
     const { startLeaf, finishLeaf } = req.body;
     await Leaf.findOneAndUpdate({ _id: startLeaf._id }, startLeaf);

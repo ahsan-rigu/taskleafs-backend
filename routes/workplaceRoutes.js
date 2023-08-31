@@ -14,7 +14,7 @@ router.put("/decline", authController.verify, workplaceController.deleteInvite);
 router.put("/accept", authController.verify, workplaceController.addMember); //add member to workplace
 router.put("/owner"), authController.verify, workplaceController.changeOwner; //change owner of workplace
 router.delete(
-  "/member",
+  "/member/:workplaceId/:removeUserId",
   authController.verify,
   workplaceController.deleteMember
 ); //delete member from workplace

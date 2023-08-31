@@ -6,14 +6,13 @@ const createBranch = async (req, res) => {
     const { branch, workplaceId } = req.body;
     await Branch.create(branch);
     await Workplace.findOneAndUpdate(
-      { _id: workplaceId, owner: req.userId },
+      { _id: workplaceId },
       { $push: { branches: branch._id } }
     );
     return res.status(200).send({
       message: "Branch Created",
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).send({
       message: error.message,
     });
@@ -23,7 +22,6 @@ const createBranch = async (req, res) => {
 const deleteBranch = async (req, res) => {
   try {
     const { branchId, workplaceId } = req.params;
-    console.log(branchId, workplaceId);
     const { leafs } = await Branch.findOneAndDelete({
       _id: branchId,
     });
