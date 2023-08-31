@@ -16,6 +16,7 @@ const Leaf = require("./models/leafModel");
 const User = require("./models/userModel");
 const Workplace = require("./models/workplaceModel");
 const Branch = require("./models/branchModel");
+const path = require("path");
 
 const app = express();
 app.use(cors());
@@ -38,6 +39,15 @@ app.use("/api/user", userRoutes);
 app.use("/api/workplace", workplaceRoutes);
 app.use("/api/branch", branchRoutes);
 app.use("/api/leaf", leafRoutes);
+
+app.get("/", function (req, res) {
+  const options = {
+    root: path.join(__dirname),
+  };
+
+  const fileName = "README.md";
+  res.sendFile(fileName, options);
+});
 
 Leaf.watch().on("change", (change) => {
   io.emit("change", "changed");
