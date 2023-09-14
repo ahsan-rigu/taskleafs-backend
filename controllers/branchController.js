@@ -1,14 +1,30 @@
 const Branch = require("../models/branchModel");
+const Leaf = require("../models/leafModel");
 const Workplace = require("../models/workplaceModel");
 
 const createBranch = async (req, res) => {
   try {
     const { branch, workplaceId } = req.body;
     await Branch.create(branch);
-    await Workplace.findOneAndUpdate(
+    const { name } = await Workplace.findOneAndUpdate(
       { _id: workplaceId },
       { $push: { branches: branch._id } }
     );
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.workplaces.includes(workplaceId)) {
+        socket.emit("change", {
+          dispatch: {
+            type: "ADD_BRANCH",
+            payload: {
+              branch: { ...branch, _id: branch._id.toString() },
+              workplaceId,
+            },
+          },
+          origin: req.userId,
+          message: `Branch created by ${req.username} in "${name}"`,
+        });
+      }
+    }
     return res.status(200).send({
       message: "Branch Created",
     });
@@ -28,11 +44,22 @@ const deleteBranch = async (req, res) => {
     for (let j = 0; j < leafs.length; j++) {
       await Leaf.findOneAndDelete({ _id: leafs[j] });
     }
-
-    await Workplace.findOneAndUpdate(
+    const { name } = await Workplace.findOneAndUpdate(
       { _id: workplaceId },
       { $pull: { branches: branchId } }
     );
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.workplaces.includes(workplaceId)) {
+        socket.emit("change", {
+          dispatch: {
+            type: "DELETE_BRANCH",
+            payload: { branchId, workplaceId },
+          },
+          origin: req.userId,
+          message: `Branch deleted in "${name}" by ${req.username}`,
+        });
+      }
+    }
     return res.status(200).send({
       message: "Branch Deleted",
     });
@@ -45,8 +72,24 @@ const deleteBranch = async (req, res) => {
 
 const updateBranchName = async (req, res) => {
   try {
-    const { branchName, branchId } = req.body;
+    const { branchName, branchId, workplaceName, workplaceId } = req.body;
     await Branch.findOneAndUpdate({ _id: branchId }, { branchName });
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.workplaces.includes(workplaceId)) {
+        socket.emit("change", {
+          dispatch: {
+            type: "UPDATE_BRANCH_NAME",
+            payload: {
+              branchName,
+              branchId,
+              workplaceId,
+            },
+          },
+          origin: req.userId,
+          message: `A Branch name has been changed in "${workplaceName}" by ${req.username}`,
+        });
+      }
+    }
     return res.status(200).send({
       message: "Branch Updated",
     });
