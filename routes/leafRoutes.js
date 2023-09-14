@@ -5,14 +5,14 @@ const leafController = require("../controllers/leafController");
 
 router.post("/", authController.verify, leafController.createLeaf); //create leaf
 router.delete(
-  "/:branchId/:leafId",
+  "/:workplaceId/:branchId/:leafId",
   authController.verify,
   leafController.deleteLeaf
 ); //delete leaf
 router.put("/", authController.verify, leafController.updateLeaf); //update leaf
 router.post("/task", authController.verify, leafController.addTask); //create task
 router.delete(
-  "/task/:leafId/:taskId",
+  "/task/:workplaceId/:branchId/:leafId/:taskId",
   authController.verify,
   leafController.deleteTask
 ); //delete task
