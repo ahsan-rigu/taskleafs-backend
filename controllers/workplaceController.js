@@ -19,6 +19,11 @@ const createWorkplace = async (req, res) => {
       { _id: userId },
       { $push: { workplaces: workplace._id } }
     );
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.userId === userId) {
+        socket.workplaces.push(workplace._id.toString());
+      }
+    }
     return res.status(201).send({
       message: "Workplace Created",
       workplace,
@@ -37,9 +42,18 @@ const updateWorkplace = async (req, res) => {
       { _id: workplaceId, owner: req.userId },
       { name: workplaceName, description }
     );
-    return res.status(200).send({
-      message: "Workplace Updated",
-    });
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.workplaces.includes(workplaceId)) {
+        socket.emit("change", {
+          dispatch: {
+            type: "EDIT_WORKPLACE",
+            payload: { name: workplaceName, description, workplaceId },
+          },
+          origin: req.userId,
+          message: `Workplace details of "${workplaceName}" updated by ${req.username}`,
+        });
+      }
+    }
   } catch (error) {
     return res.status(500).send({
       message: error.message,
@@ -74,6 +88,18 @@ const deleteWorkplace = async (req, res) => {
         }
       }
     }
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.workplaces.includes(workplaceId)) {
+        socket.emit("change", {
+          dispatch: {
+            type: "DELETE_WORKPLACE",
+            payload: { workplaceId },
+          },
+          origin: req.userId,
+          message: `Wrokplace "${workplace.name}" has been deleted by ${req.username}`,
+        });
+      }
+    }
     return res.status(200).send({
       message: "Workplace Deleted",
     });
@@ -93,7 +119,25 @@ const inviteUser = async (req, res) => {
         message: "You are not the owner of this workplace",
       });
     }
+    if (workplace.members.find((member) => member.username === username)) {
+      return res.status(401).send({
+        message: "User is already a member of this workplace",
+      });
+    }
     await User.findOneAndUpdate(
+      {
+        username: username,
+      },
+      {
+        $pull: {
+          invitations: {
+            workplaceId: workplaceId,
+            name: workplace.name,
+          },
+        },
+      }
+    );
+    const { _id } = await User.findOneAndUpdate(
       {
         username: username,
       },
@@ -106,6 +150,21 @@ const inviteUser = async (req, res) => {
         },
       }
     );
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.userId === _id.toString()) {
+        socket.emit("change", {
+          dispatch: {
+            type: "INVITE",
+            payload: {
+              workplaceId: workplaceId,
+              name: workplace.name,
+            },
+          },
+          origin: req.userId,
+          message: `You have been invited to "${workplace.name}" by ${req.username}`,
+        });
+      }
+    }
     return res.status(200).send({
       message: "User Invited",
     });
@@ -130,7 +189,7 @@ const addMember = async (req, res) => {
         },
       }
     );
-    await Workplace.findOneAndUpdate(
+    const workplace = await Workplace.findOneAndUpdate(
       { _id: workplaceId },
       {
         $push: {
@@ -141,9 +200,31 @@ const addMember = async (req, res) => {
           },
         },
       }
-    );
+    ).populate({
+      path: "branches",
+      populate: { path: "leafs" },
+    });
+    for (let [id, socket] of req.io.of("/").sockets) {
+      if (socket.workplaces.includes(workplaceId)) {
+        socket.emit("change", {
+          dispatch: {
+            type: "ADD_MEMBER",
+            payload: {
+              workplaceId: workplaceId,
+              member: { _id: req.userId, username, name },
+            },
+          },
+          origin: req.userId,
+          message: `${name} has been added to "${workplace.name}" by ${req.username}`,
+        });
+      }
+      if (socket.userId === req.userId) {
+        socket.workplaces.push(workplaceId);
+      }
+    }
     return res.status(200).send({
-      message: "Member Added",
+      workplace,
+      message: "You have been added to the workplace",
     });
   } catch (error) {
     return res.status(500).send({
@@ -193,10 +274,27 @@ const deleteMember = async (req, res) => {
           },
         }
       );
-      await Workplace.findOneAndUpdate(
+      const workplace = await Workplace.findOneAndUpdate(
         { _id: workplaceId },
         { $pull: { members: { _id: removeUserId, name, username } } }
       );
+      for (let [id, socket] of req.io.of("/").sockets) {
+        if (socket.userId === removeUserId) {
+          socket.workplaces = socket.workplaces.filter(
+            (workplace) => workplace !== workplaceId
+          );
+          socket.emit("change", {
+            dispatch: {
+              type: "DELETE_MEMBER",
+              payload: {
+                workplaceId,
+              },
+            },
+            origin: req.userId,
+            message: `You have been removed from "${workplace.name}" by ${req.username}`,
+          });
+        }
+      }
       return res.status(200).send({
         message: "Member Removed",
       });
