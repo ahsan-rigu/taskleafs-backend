@@ -12,10 +12,6 @@ const branchRoutes = require("./routes/branchRoutes");
 const leafRoutes = require("./routes/leafRoutes");
 
 const connectDB = require("./utils/connectDB");
-const Leaf = require("./models/leafModel");
-const User = require("./models/userModel");
-const Workplace = require("./models/workplaceModel");
-const Branch = require("./models/branchModel");
 const path = require("path");
 
 const app = express();
@@ -25,12 +21,24 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST"],
   },
 });
 
 server.listen(8080, () => {
   console.log("listning (8080)");
+});
+
+io.use((socket, next) => {
+  const { userId, workplaces } = socket.handshake.auth;
+  socket.userId = userId;
+  socket.workplaces = workplaces;
+  next();
+});
+
+app.use((req, res, next) => {
+  req.io = io;
+  next();
 });
 
 app.use(express.json());
@@ -49,18 +57,6 @@ app.get("/", function (req, res) {
   res.sendFile(fileName, options);
 });
 
-Leaf.watch().on("change", (change) => {
-  io.emit("change", "changed");
-});
-User.watch().on("change", (change) => {
-  io.emit("change", "changed");
-});
-Workplace.watch().on("change", (change) => {
-  io.emit("change", "changed");
-});
-Branch.watch().on("change", (change) => {
-  io.emit("change", "changed");
-});
 app.use("*", (req, res) => {
   console.log("someone is trying to access a non existing route", req.params);
   res.send("Route Not Found");

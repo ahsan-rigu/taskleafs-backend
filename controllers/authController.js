@@ -131,15 +131,18 @@ const verify = async (req, res, next) => {
   } else {
     const token = authorization.split(" ")[1];
     try {
-      jwt.verify(token, process.env.JWT_KEY, (error, { _id }) => {
+      jwt.verify(token, process.env.JWT_KEY, async (error, resp) => {
         if (error) {
           res.status(500).send({ message: error.message });
         }
-        req.userId = _id;
+        if (resp._id === undefined) return res.sendStatus(500);
+        req.userId = resp._id;
+        const { username } = await User.findOne({ _id: resp._id });
+        if (!username) return res.sendStatus(500);
+        req.username = username;
         next();
       });
     } catch (error) {
-      console.log(error);
       res.status(500).send({
         message: error.message,
       });
