@@ -18,7 +18,31 @@ const createQuestion = async (req, res) => {
   }
 };
 
+const addComment = async (req, res) => {
+  try {
+    const { questionId, comment } = req.body;
+    const question = await Question.findOneAndUpdate(
+      { _id: questionId },
+      { $push: { comments: comment } }
+    );
+    return res.status(200).send(question);
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+};
+
+const getQuestion = async (req, res) => {
+  try {
+    const question = await Question.findById(req.params.id);
+    return res.status(200).send(question);
+  } catch (error) {
+    return res.status(500).send({ message: error.message });
+  }
+};
+
 module.exports = {
   getQuestions,
   createQuestion,
+  addComment,
+  getQuestion,
 };
