@@ -10,6 +10,7 @@ const userRoutes = require("./routes/userRoutes");
 const workplaceRoutes = require("./routes/workplaceRoutes");
 const branchRoutes = require("./routes/branchRoutes");
 const leafRoutes = require("./routes/leafRoutes");
+const questionRoutes = require("./routes/questionRoutes");
 
 const connectDB = require("./utils/connectDB");
 const path = require("path");
@@ -47,6 +48,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/workplace", workplaceRoutes);
 app.use("/api/branch", branchRoutes);
 app.use("/api/leaf", leafRoutes);
+app.use("/api/question", questionRoutes);
 
 app.get("/", function (req, res) {
   const options = {
