@@ -3,7 +3,7 @@
 TaskLeaf's is a mock project management app, that works on a workplace>branches>leafs>tasks hierarchy. The app is made with reactJS, TypeScript (vanilla CSS) for the frontend, and Express and MongoDB(with mongoose) on the backend.
 Link to [Frontend Repo](https://github.com/ahsan-rigu/taskleafs-frontend)
 
-Note: Branches, Leafs and tasks are created at the front-end first (to make the creation instant) and require an \_id key in the form of mongo object id, do this on the frontend by using mongoose (or just mimicking the pattern).
+Note: Branches, Leafs and tasks are created at the front-end first (to make the creation instant) and require an \_id key in the form of mongo object id, do this on the frontend by using mongoose (or by just mimicking the pattern making sure you don't create dublicates).
 Note: If you see a requirement like task or leaf or branch, assume it's an object and check models for specific requirements.
 
 Requires auth means `` req.headers = {authorization : `Bearer ${token}`} ``
