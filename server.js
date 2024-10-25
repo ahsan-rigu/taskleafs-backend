@@ -26,7 +26,7 @@ const io = new Server(server, {
   },
 });
 
-server.listen(8080, () => {
+server.listen(process.env.PORT || 8080, () => {
   console.log("listning (8080)");
 });
 
